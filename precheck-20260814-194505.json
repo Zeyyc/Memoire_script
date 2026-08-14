@@ -1,0 +1,103 @@
+{
+  "Cible": "http://127.0.0.1:8000",
+  "Date": "2026-08-14 19:45:05",
+  "Baseline": "Baseline de reference - deploiement Synergy (2024.05.01)",
+  "Inventaire": {
+    "Chassis": [
+      {
+        "Id": "Frame-B2-10",
+        "Modele": "Synergy 12000 Frame",
+        "NumeroSerie": "CZ24XXXXB1",
+        "Sante": "OK"
+      }
+    ],
+    "ModulesCalcul": [
+      {
+        "Id": "Blade-01",
+        "Modele": "Synergy 480 Gen10 Plus",
+        "NumeroSerie": "CZ24XXXXC7",
+        "VersionBios": "2.68",
+        "Alimentation": "Off",
+        "Sante": "OK"
+      }
+    ],
+    "Managers": [
+      {
+        "Id": "Composer-1",
+        "Modele": "Synergy Composer2",
+        "Version": "8.00.01",
+        "Sante": "OK"
+      }
+    ]
+  },
+  "Firmware": [
+    {
+      "Composant": "HPE Synergy Composer (OneView)",
+      "VersionRelevee": "7.20.00",
+      "VersionCible": "8.30.01",
+      "Statut": "Non conforme",
+      "Critique": true,
+      "Commentaire": "Mise a niveau requise"
+    },
+    {
+      "Composant": "Frame Link Module",
+      "VersionRelevee": "1.24.00",
+      "VersionCible": "1.24.00",
+      "Statut": "Conforme",
+      "Critique": true,
+      "Commentaire": ""
+    },
+    {
+      "Composant": "Module Virtual Connect",
+      "VersionRelevee": "5.20.00",
+      "VersionCible": "5.20.00",
+      "Statut": "Conforme",
+      "Critique": true,
+      "Commentaire": ""
+    },
+    {
+      "Composant": "BIOS module de calcul",
+      "VersionRelevee": "2.68",
+      "VersionCible": "2.68",
+      "Statut": "Conforme",
+      "Critique": false,
+      "Commentaire": ""
+    },
+    {
+      "Composant": "Controleur iLO",
+      "VersionRelevee": "2.90",
+      "VersionCible": "2.98",
+      "Statut": "Non conforme",
+      "Critique": false,
+      "Commentaire": "Mise a niveau requise"
+    }
+  ],
+  "Nomenclature": [
+    {
+      "Element": "Chassis",
+      "Attendu": 8,
+      "Constate": 1,
+      "Statut": "Non conforme"
+    },
+    {
+      "Element": "Modules de calcul",
+      "Attendu": 80,
+      "Constate": 1,
+      "Statut": "Non conforme"
+    }
+  ],
+  "Sequence": {
+    "Statut": "Non conforme",
+    "Etapes": [
+      "8.00.01",
+      "8.30.01"
+    ],
+    "Message": "Sequence requise depuis 7.20.00 : 8.00.01 puis 8.30.01. L'infrastructure partagee (Frame Link Modules, modules d'interconnexion) doit etre mise a niveau apres le Composer, avant les modules de calcul."
+  },
+  "Synthese": {
+    "Conforme": 3,
+    "NonConforme": 4,
+    "NonVerifiable": 0
+  },
+  "Decision": "NON PRET - 1 ecart(s) sur composant critique"
+}
