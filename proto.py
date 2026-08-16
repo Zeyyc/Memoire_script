@@ -67,12 +67,14 @@ def tester():
     ko = []
 
     def verifier(libelle, obtenu, attendu):
-        if obtenu == attendu:
+        reussi = obtenu == attendu
+        if reussi:
             next(ok)
         else:
             ko.append(f"{libelle} : obtenu {obtenu!r}, attendu {attendu!r}")
+        print(f"  [{'OK' if reussi else 'KO'}] {libelle:<28} -> {obtenu!r}")
 
-    # Comparaison de versions
+    print("\n Comparaison de versions")
     verifier("egalite", comparer_versions("8.30.01", "8.30.01"), 0)
     verifier("inferieur", comparer_versions("8.00.01", "8.30.01"), -1)
     verifier("superieur", comparer_versions("8.50.01", "8.30.01"), 1)
@@ -80,21 +82,21 @@ def tester():
     verifier("suffixe constructeur", comparer_versions("2.68 (03/15/2024)", "2.68"), 1)
     verifier("segment a deux chiffres", comparer_versions("1.9.0", "1.10.0"), -1)
 
-    # Resolution du chemin de mise a niveau
+    print("\n Resolution du chemin de mise a niveau")
     chemins = json.load(open("config/baseline.json"))["chemins_composer"]
     verifier("chemin direct", resoudre_chemin("8.00.01", "8.30.01", chemins), ["8.30.01"])
     verifier("chemin en deux sauts", resoudre_chemin("7.20.00", "8.30.01", chemins), ["8.00.01", "8.30.01"])
     verifier("deja a jour", resoudre_chemin("8.30.01", "8.30.01", chemins), [])
     verifier("cible inatteignable", resoudre_chemin("6.00.00", "8.30.01", chemins), None)
 
-    # Evaluation de statut
+    print("\n Evaluation de statut")
     verifier("statut conforme", evaluer_composant("8.30.01", "8.30.01"), STATUT_CONFORME)
     verifier("statut non conforme", evaluer_composant("8.00.01", "8.30.01"), STATUT_NON_CONFORME)
     verifier("statut non verifiable", evaluer_composant(None, "8.30.01"), STATUT_NON_VERIFIABLE)
     verifier("version superieure acceptee", evaluer_composant("8.50.01", "8.30.01"), STATUT_CONFORME)
 
     total = next(ok)
-    print(f"{total} tests reussis, {len(ko)} en echec")
+    print(f"\n {total} tests reussis, {len(ko)} en echec")
     for echec in ko:
         print("  ECHEC :", echec)
     return not ko
