@@ -1,7 +1,7 @@
 {
   "Cible": "http://127.0.0.1:8000",
-  "Date": "2026-08-14 19:45:05",
-  "Baseline": "Baseline de reference - deploiement Synergy (2024.05.01)",
+  "Date": "2026-08-16 08:55:17",
+  "Baseline": "Baseline de reference - deploiement Synergy (2024.09.23)",
   "Inventaire": {
     "Chassis": [
       {
@@ -25,7 +25,7 @@
       {
         "Id": "Composer-1",
         "Modele": "Synergy Composer2",
-        "Version": "8.00.01",
+        "Version": "7.20.00",
         "Sante": "OK"
       }
     ]
@@ -37,6 +37,7 @@
       "VersionCible": "8.30.01",
       "Statut": "Non conforme",
       "Critique": true,
+      "Sante": "OK",
       "Commentaire": "Mise a niveau requise"
     },
     {
@@ -45,6 +46,7 @@
       "VersionCible": "1.24.00",
       "Statut": "Conforme",
       "Critique": true,
+      "Sante": "OK",
       "Commentaire": ""
     },
     {
@@ -53,6 +55,7 @@
       "VersionCible": "5.20.00",
       "Statut": "Conforme",
       "Critique": true,
+      "Sante": "OK",
       "Commentaire": ""
     },
     {
@@ -61,6 +64,7 @@
       "VersionCible": "2.68",
       "Statut": "Conforme",
       "Critique": false,
+      "Sante": "OK",
       "Commentaire": ""
     },
     {
@@ -69,7 +73,16 @@
       "VersionCible": "2.98",
       "Statut": "Non conforme",
       "Critique": false,
+      "Sante": "Warning",
       "Commentaire": "Mise a niveau requise"
+    },
+    {
+      "Composant": "Adaptateur d'entree-sortie",
+      "VersionRelevee": "n/c",
+      "VersionCible": "12.25.10",
+      "Statut": "Non verifiable",
+      "Critique": false,
+      "Commentaire": "Composant absent de l inventaire ou version non exposee"
     }
   ],
   "Nomenclature": [
@@ -84,6 +97,20 @@
       "Attendu": 80,
       "Constate": 1,
       "Statut": "Non conforme"
+    },
+    {
+      "Element": "Modules interconnexion",
+      "Attendu": 4,
+      "Constate": 1,
+      "Statut": "Non conforme"
+    }
+  ],
+  "Alertes": [
+    {
+      "Famille": "Firmware",
+      "Element": "iLO 5",
+      "Sante": "Warning",
+      "Statut": "Non conforme"
     }
   ],
   "Sequence": {
@@ -96,8 +123,8 @@
   },
   "Synthese": {
     "Conforme": 3,
-    "NonConforme": 4,
-    "NonVerifiable": 0
+    "NonConforme": 5,
+    "NonVerifiable": 1
   },
   "Decision": "NON PRET - 1 ecart(s) sur composant critique"
 }
