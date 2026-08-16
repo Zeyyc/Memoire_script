@@ -161,6 +161,29 @@ function Write-Etape {
     Write-Host "  $Message" -ForegroundColor DarkGray
 }
 
+function Format-Paragraphe {
+    <#
+        Replie un texte long sur une largeur donnee. La restitution console est
+        destinee a etre lue sur site : une ligne qui deborde du terminal est une
+        ligne qui ne sera pas lue.
+    #>
+    param([string]$Texte, [int]$Largeur = 70, [string]$Indentation = '  ')
+
+    $lignes = @()
+    $courante = ''
+    foreach ($mot in $Texte -split '\s+') {
+        if ($courante -and ($courante.Length + 1 + $mot.Length) -gt $Largeur) {
+            $lignes += $Indentation + $courante
+            $courante = $mot
+        }
+        else {
+            $courante = if ($courante) { "$courante $mot" } else { $mot }
+        }
+    }
+    if ($courante) { $lignes += $Indentation + $courante }
+    return $lignes
+}
+
 #endregion
 
 #region ----------------------------------------------------- Couche d'acces Redfish
@@ -385,6 +408,10 @@ function Test-ConformiteFirmware {
             VersionCible   = $composant.version_cible
             Statut         = if ($ecart -ge 0) { $script:CONFORME } else { $script:NON_CONFORME }
             Critique       = $composant.critique
+            # L'etat de sante releve est conserve dans le resultat : un composant
+            # peut etre a la bonne version et signaler une alerte materielle. Les
+            # deux informations sont distinctes et doivent le rester.
+            Sante          = $releve.Sante
             Commentaire    = if ($ecart -lt 0) { 'Mise a niveau requise' }
                              elseif ($ecart -gt 0) { 'Version superieure a la cible' }
                              else { '' }
@@ -393,19 +420,72 @@ function Test-ConformiteFirmware {
     return ,$resultats
 }
 
+function Get-AlertesSante {
+    <#
+        Recense les composants dont l'etat de sante n'est pas nominal, toutes
+        familles confondues. Un composant a la bonne version mais en alerte est
+        un motif de report d'intervention au meme titre qu'un ecart de version :
+        le releve de conformite seul ne le ferait pas apparaitre.
+    #>
+    param($Inventaire, $InventaireFirmware)
+
+    Write-Etape "Relevé des alertes materielles..."
+    $alertes = @()
+
+    $familles = @(
+        @{ Famille = 'Chassis';           Elements = $Inventaire.Chassis }
+        @{ Famille = 'Module de calcul';  Elements = $Inventaire.ModulesCalcul }
+        @{ Famille = 'Controleur';        Elements = $Inventaire.Managers }
+        @{ Famille = 'Firmware';          Elements = $InventaireFirmware }
+    )
+
+    foreach ($famille in $familles) {
+        foreach ($element in @($famille.Elements)) {
+            $sante = $element.Sante
+            if ([string]::IsNullOrEmpty($sante) -or $sante -eq 'n/c') {
+                $alertes += [pscustomobject]@{
+                    Famille = $famille.Famille
+                    Element = if ($element.PSObject.Properties['Nom']) { $element.Nom } else { $element.Id }
+                    Sante   = 'n/c'
+                    Statut  = $script:NON_VERIFIABLE
+                }
+            }
+            elseif ($sante -ne 'OK') {
+                $alertes += [pscustomobject]@{
+                    Famille = $famille.Famille
+                    Element = if ($element.PSObject.Properties['Nom']) { $element.Nom } else { $element.Id }
+                    Sante   = $sante
+                    Statut  = $script:NON_CONFORME
+                }
+            }
+        }
+    }
+    return ,$alertes
+}
+
 function Test-ConformiteNomenclature {
     <#
         Rapproche le materiel decouvert de la nomenclature attendue.
         Remplace le rapprochement manuel des numeros de serie constate sur site.
     #>
-    param($Inventaire, $Baseline)
+    param($Inventaire, $InventaireFirmware, $Baseline)
 
     if (-not $Baseline.PSObject.Properties['nomenclature_attendue']) { return @() }
     $attendu = $Baseline.nomenclature_attendue
 
+    # Les modules d'interconnexion ne sont exposes ni comme Chassis ni comme
+    # Systems : ils sont denombres a partir des entrees d'inventaire firmware
+    # rapprochees par le motif declare dans la baseline. Ce rapprochement est
+    # indirect et assume comme tel.
+    $motifInterconnexion = ($Baseline.composants | Where-Object { $_.cle -eq 'VirtualConnect' }).motif
+    $nbInterconnexion = @($InventaireFirmware | Where-Object {
+        $motifInterconnexion -and ($_.Nom -match $motifInterconnexion -or $_.Id -match $motifInterconnexion)
+    }).Count
+
     $controles = @(
-        @{ Libelle = 'Chassis';                Attendu = $attendu.chassis;       Constate = $Inventaire.Chassis.Count }
-        @{ Libelle = 'Modules de calcul';      Attendu = $attendu.modules_calcul; Constate = $Inventaire.ModulesCalcul.Count }
+        @{ Libelle = 'Chassis';                 Attendu = $attendu.chassis;                 Constate = $Inventaire.Chassis.Count }
+        @{ Libelle = 'Modules de calcul';       Attendu = $attendu.modules_calcul;          Constate = $Inventaire.ModulesCalcul.Count }
+        @{ Libelle = 'Modules interconnexion';  Attendu = $attendu.modules_interconnexion;  Constate = $nbInterconnexion }
     )
 
     return @($controles | ForEach-Object {
@@ -427,9 +507,14 @@ function Get-SequenceMiseANiveau {
     #>
     param($InventaireFirmware, $Baseline)
 
-    $composerCible = ($Baseline.composants | Where-Object { $_.cle -eq 'Composer' }).version_cible
-    $composerReleve = ($InventaireFirmware | Where-Object { $_.Nom -match 'Composer' } |
-                       Select-Object -First 1).Version
+    # Le composant Composer est identifie par le motif declare dans la baseline,
+    # et non par une chaine codee en dur : meme principe d'externalisation que
+    # pour le rapprochement de conformite, et meme rapprochement sur Nom et Id.
+    $composer = $Baseline.composants | Where-Object { $_.cle -eq 'Composer' } | Select-Object -First 1
+    $composerCible = $composer.version_cible
+    $composerReleve = ($InventaireFirmware | Where-Object {
+                           $_.Nom -match $composer.motif -or $_.Id -match $composer.motif
+                       } | Select-Object -First 1).Version
 
     if (-not $composerReleve) {
         return [pscustomobject]@{
@@ -513,8 +598,22 @@ function Write-RapportConsole {
             $resultat.Composant, $resultat.VersionRelevee, $resultat.VersionCible, $resultat.Statut) -ForegroundColor $couleur
     }
 
+    Write-Host "`n ETAT DE SANTE"
+    if (@($Rapport.Alertes).Count -eq 0) {
+        Write-Host "  Aucune alerte materielle relevee" -ForegroundColor Green
+    }
+    else {
+        foreach ($alerte in $Rapport.Alertes) {
+            $couleur = if ($alerte.Statut -eq $script:NON_VERIFIABLE) { 'Yellow' } else { 'Red' }
+            Write-Host ("  {0,-18} {1,-32} {2}" -f `
+                $alerte.Famille, $alerte.Element, $alerte.Sante) -ForegroundColor $couleur
+        }
+    }
+
     Write-Host "`n SEQUENCE DE MISE A NIVEAU"
-    Write-Host "  $($Rapport.Sequence.Message)"
+    foreach ($ligneSequence in (Format-Paragraphe -Texte $Rapport.Sequence.Message -Largeur 68)) {
+        Write-Host $ligneSequence
+    }
 
     Write-Host "`n SYNTHESE"
     Write-Host ("  Conforme       : {0}" -f $Rapport.Synthese.Conforme)      -ForegroundColor Green
@@ -568,7 +667,8 @@ try {
     $inventaire   = Get-InventaireMateriel -BaseUri $racine
     $firmware     = Get-InventaireFirmware -BaseUri $racine
     $conformite   = Test-ConformiteFirmware -InventaireFirmware $firmware -Baseline $baseline
-    $nomenclature = Test-ConformiteNomenclature -Inventaire $inventaire -Baseline $baseline
+    $nomenclature = Test-ConformiteNomenclature -Inventaire $inventaire -InventaireFirmware $firmware -Baseline $baseline
+    $alertes      = Get-AlertesSante -Inventaire $inventaire -InventaireFirmware $firmware
     $sequence     = Get-SequenceMiseANiveau -InventaireFirmware $firmware -Baseline $baseline
 
     $tous = @($conformite) + @($nomenclature)
@@ -582,7 +682,7 @@ try {
     $bloquants = @($conformite | Where-Object { $_.Critique -and $_.Statut -eq $script:NON_CONFORME })
     $decision = if ($bloquants.Count -gt 0) {
         "NON PRET - $($bloquants.Count) ecart(s) sur composant critique"
-    } elseif ($synthese.NonConforme -gt 0 -or $synthese.NonVerifiable -gt 0) {
+    } elseif ($synthese.NonConforme -gt 0 -or $synthese.NonVerifiable -gt 0 -or $alertes.Count -gt 0) {
         "PRET SOUS RESERVE - points a traiter avant deplacement"
     } else {
         "PRET - aucun ecart detecte"
@@ -595,6 +695,7 @@ try {
         Inventaire   = $inventaire
         Firmware     = $conformite
         Nomenclature = $nomenclature
+        Alertes      = $alertes
         Sequence     = $sequence
         Synthese     = $synthese
         Decision     = $decision
@@ -604,7 +705,9 @@ try {
     $chemin = Export-Rapport -Rapport $rapport -Destination $OutputPath
 
     # Code de sortie exploitable par un appel automatise.
-    exit $(if ($bloquants.Count -gt 0) { 2 } elseif ($synthese.NonConforme -gt 0) { 1 } else { 0 })
+    exit $(if ($bloquants.Count -gt 0) { 2 }
+           elseif ($synthese.NonConforme -gt 0 -or $synthese.NonVerifiable -gt 0 -or $alertes.Count -gt 0) { 1 }
+           else { 0 })
 }
 catch {
     Write-Error "Echec du pre-check : $($_.Exception.Message)"
