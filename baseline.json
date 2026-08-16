@@ -1,6 +1,6 @@
 {
   "nom": "Baseline de reference - deploiement Synergy",
-  "version": "2024.05.01",
+  "version": "2024.09.23",
   "commentaire": "Versions cibles par composant. A adapter selon le Custom SPP retenu pour le chantier.",
   "composants": [
     {
@@ -37,6 +37,13 @@
       "version_cible": "2.98",
       "critique": false,
       "motif": "ilo"
+    },
+    {
+      "cle": "AdaptateurES",
+      "libelle": "Adaptateur d'entree-sortie",
+      "version_cible": "12.25.10",
+      "critique": false,
+      "motif": "cna|adapter|adaptateur"
     }
   ],
   "chemins_composer": {
