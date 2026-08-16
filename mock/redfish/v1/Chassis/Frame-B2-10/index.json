@@ -1,0 +1,13 @@
+{
+  "@odata.id": "/redfish/v1/Chassis/Frame-B2-10",
+  "Id": "Frame-B2-10",
+  "Name": "Synergy 12000 Frame",
+  "ChassisType": "Enclosure",
+  "Manufacturer": "HPE",
+  "Model": "Synergy 12000 Frame",
+  "SerialNumber": "CZ24XXXXB1",
+  "Status": {
+    "Health": "OK",
+    "State": "Enabled"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "nom": "Baseline de reference - deploiement Synergy",
+  "version": "2024.09.23",
+  "commentaire": "Versions cibles par composant. A adapter selon le Custom SPP retenu pour le chantier.",
+  "composants": [
+    {
+      "cle": "Composer",
+      "libelle": "HPE Synergy Composer (OneView)",
+      "version_cible": "8.30.01",
+      "critique": true,
+      "motif": "composer"
+    },
+    {
+      "cle": "FrameLinkModule",
+      "libelle": "Frame Link Module",
+      "version_cible": "1.24.00",
+      "critique": true,
+      "motif": "frame\\s*link"
+    },
+    {
+      "cle": "VirtualConnect",
+      "libelle": "Module Virtual Connect",
+      "version_cible": "5.20.00",
+      "critique": true,
+      "motif": "virtual\\s*connect"
+    },
+    {
+      "cle": "SystemBIOS",
+      "libelle": "BIOS module de calcul",
+      "version_cible": "2.68",
+      "critique": false,
+      "motif": "system\\s*bios|^bios"
+    },
+    {
+      "cle": "iLO",
+      "libelle": "Controleur iLO",
+      "version_cible": "2.98",
+      "critique": false,
+      "motif": "ilo"
+    },
+    {
+      "cle": "AdaptateurES",
+      "libelle": "Adaptateur d'entree-sortie",
+      "version_cible": "12.25.10",
+      "critique": false,
+      "motif": "cna|adapter|adaptateur"
+    }
+  ],
+  "chemins_composer": {
+    "commentaire": "Versions cibles atteignables depuis chaque version installee. Source : table des chemins de mise a niveau HPE.",
+    "7.20.00": [
+      "8.00.01"
+    ],
+    "8.00.01": [
+      "8.10.01",
+      "8.30.01"
+    ],
+    "8.10.01": [
+      "8.30.01"
+    ],
+    "8.30.01": [
+      "8.50.01"
+    ]
+  },
+  "nomenclature_attendue": {
+    "chassis": 8,
+    "modules_calcul": 80,
+    "modules_interconnexion": 4
+  },
+  "_commentaire_motif": "motif : expression reguliere de rapprochement avec le libelle expose par l'equipement. Les libelles varient d'un constructeur a l'autre, le motif rend le rapprochement explicite et modifiable sans toucher au code."
+}

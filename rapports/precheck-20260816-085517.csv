@@ -1,0 +1,7 @@
+"Composant","VersionRelevee","VersionCible","Statut","Critique","Sante","Commentaire"
+"HPE Synergy Composer (OneView)","7.20.00","8.30.01","Non conforme","True","OK","Mise a niveau requise"
+"Frame Link Module","1.24.00","1.24.00","Conforme","True","OK",""
+"Module Virtual Connect","5.20.00","5.20.00","Conforme","True","OK",""
+"BIOS module de calcul","2.68","2.68","Conforme","False","OK",""
+"Controleur iLO","2.90","2.98","Non conforme","False","Warning","Mise a niveau requise"
+"Adaptateur d'entree-sortie","n/c","12.25.10","Non verifiable","False",,"Composant absent de l inventaire ou version non exposee"

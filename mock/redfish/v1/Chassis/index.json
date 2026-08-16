@@ -1,0 +1,10 @@
+{
+  "@odata.id": "/redfish/v1/Chassis",
+  "Name": "Chassis Collection",
+  "Members@odata.count": 1,
+  "Members": [
+    {
+      "@odata.id": "/redfish/v1/Chassis/Frame-B2-10"
+    }
+  ]
+}

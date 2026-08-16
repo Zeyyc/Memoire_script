@@ -1,0 +1,21 @@
+{
+  "@odata.id": "/redfish/v1/Systems/Blade-01",
+  "Id": "Blade-01",
+  "Name": "Compute Module 1",
+  "Manufacturer": "HPE",
+  "Model": "Synergy 480 Gen10 Plus",
+  "SerialNumber": "CZ24XXXXC7",
+  "BiosVersion": "2.68",
+  "PowerState": "Off",
+  "Status": {
+    "Health": "OK",
+    "State": "Enabled"
+  },
+  "MemorySummary": {
+    "TotalSystemMemoryGiB": 512
+  },
+  "ProcessorSummary": {
+    "Count": 2,
+    "Model": "Intel Xeon Gold 6338"
+  }
+}

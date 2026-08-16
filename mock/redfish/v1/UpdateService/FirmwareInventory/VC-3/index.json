@@ -1,0 +1,11 @@
+{
+  "@odata.id": "/redfish/v1/UpdateService/FirmwareInventory/VC-3",
+  "Id": "VC-3",
+  "Name": "Virtual Connect SE 100Gb F32 Module",
+  "Version": "5.20.00",
+  "Updateable": true,
+  "Status": {
+    "Health": "OK",
+    "State": "Enabled"
+  }
+}

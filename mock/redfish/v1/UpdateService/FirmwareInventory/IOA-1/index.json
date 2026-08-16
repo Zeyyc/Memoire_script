@@ -1,0 +1,10 @@
+{
+  "@odata.id": "/redfish/v1/UpdateService/FirmwareInventory/IOA-1",
+  "Id": "IOA-1",
+  "Name": "Synergy 6820C 25/50Gb CNA",
+  "Updateable": true,
+  "Status": {
+    "Health": "OK",
+    "State": "Enabled"
+  }
+}

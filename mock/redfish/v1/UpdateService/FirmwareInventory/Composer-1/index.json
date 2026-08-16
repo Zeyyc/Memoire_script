@@ -1,0 +1,11 @@
+{
+  "@odata.id": "/redfish/v1/UpdateService/FirmwareInventory/Composer-1",
+  "Id": "Composer-1",
+  "Name": "HPE Synergy Composer",
+  "Version": "7.20.00",
+  "Updateable": true,
+  "Status": {
+    "Health": "OK",
+    "State": "Enabled"
+  }
+}

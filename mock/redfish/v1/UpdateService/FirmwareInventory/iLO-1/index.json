@@ -1,0 +1,11 @@
+{
+  "@odata.id": "/redfish/v1/UpdateService/FirmwareInventory/iLO-1",
+  "Id": "iLO-1",
+  "Name": "iLO 5",
+  "Version": "2.90",
+  "Updateable": true,
+  "Status": {
+    "Health": "Warning",
+    "State": "Enabled"
+  }
+}

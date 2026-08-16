@@ -1,0 +1,12 @@
+{
+  "@odata.id": "/redfish/v1/Managers/Composer-1",
+  "Id": "Composer-1",
+  "Name": "Synergy Composer",
+  "ManagerType": "EnclosureManager",
+  "Model": "Synergy Composer2",
+  "FirmwareVersion": "7.20.00",
+  "Status": {
+    "Health": "OK",
+    "State": "Enabled"
+  }
+}
